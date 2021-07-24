@@ -1,0 +1,16 @@
+com/metadata/filestorage/response/ResponseFile$Versions.class
+com/metadata/filestorage/defines/FileStorageConstants.class
+com/metadata/filestorage/exception/FileNotFoundException.class
+com/metadata/filestorage/exception/GenericExceptionHandler.class
+com/metadata/filestorage/service/FileStorageService.class
+com/metadata/filestorage/model/FileVersion.class
+com/metadata/filestorage/repository/FileVersionRepository.class
+com/metadata/filestorage/response/ResponseMessage.class
+com/metadata/filestorage/repository/FileStorageRepository.class
+com/metadata/filestorage/response/ResponseFile.class
+com/metadata/filestorage/FilestorageApplication.class
+com/metadata/filestorage/controller/FileStorageController.class
+com/metadata/filestorage/exception/BadRequestException.class
+com/metadata/filestorage/model/File.class
+com/metadata/filestorage/service/IFileStorageService.class
+com/metadata/filestorage/exception/FileStorageException.class
