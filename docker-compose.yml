@@ -1,17 +1,16 @@
 version: '3'
 services:
-    mysql-service:
+    mysql_db:
         image: mysql:8
         ports:
-            - 3307:3306
+            - 3306:3306
         networks:
             - filestorage-network
         restart: always
         environment:
-            - MYSQL_USER=root
-            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_ROOT_PASSWORD=sanketlathiya
             - MYSQL_DATABASE=filestoragedb
-    filestorage-service:
+    filestorage_api:
         build:
             context: ./
             dockerfile: Dockerfile
@@ -20,9 +19,7 @@ services:
         networks:
             - filestorage-network
         depends_on:
-            - mysql-service
-        links:
-            - mysql-service:filestorage_db
+            - mysql_db
 networks:
     filestorage-network:
         driver: bridge
