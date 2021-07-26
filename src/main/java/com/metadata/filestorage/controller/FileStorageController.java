@@ -171,23 +171,27 @@ public class FileStorageController {
     @GetMapping("/files/{id}")
     public ResponseEntity<Resource> getFile(@PathVariable String id, @RequestParam(value = "versionId", required = false) Integer versionId) {
         File file = fileStorageService.getFile(id);
-        Resource resource = null;
+        FileVersion fileVersion = null;
+        
+        if(file.getFileVersions().isEmpty()) {
+            throw new FileNotFoundException(String.format("All file versions were removed for fileId: %s", id));
+        }
 
         if(versionId == null) {
-            resource = new ByteArrayResource(file.getFileVersions().stream().max(Comparator.comparing(FileVersion::getVersionId)).get().getContent());
+            fileVersion = file.getFileVersions().stream().max(Comparator.comparing(FileVersion::getVersionId)).get();
         }else {
-            Optional<FileVersion> fileVersion = file.getFileVersions().stream().filter(version -> version.getVersionId() == versionId).findFirst();
+            Optional<FileVersion> fileVer = file.getFileVersions().stream().filter(version -> version.getVersionId() == versionId).findFirst();
 
-            if(!fileVersion.isPresent()) {
+            if(!fileVer.isPresent()) {
                 throw new FileNotFoundException(String.format("File not found with id: %s and version: %s", id, versionId));
             }
 
-            resource = new ByteArrayResource(fileVersion.get().getContent());
+            fileVersion = fileVer.get();
         }
 
         return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
-            .body(resource);
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "_v" + fileVersion.getVersionId() + "\"")
+            .body(new ByteArrayResource(fileVersion.getContent()));
     }
 
     /**

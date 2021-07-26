@@ -110,6 +110,15 @@ class FilestorageApplicationTests {
     }
 
     @Test
+    void uploadNewFileWihtoutFileAttachmentTest() throws Exception {
+
+        MockMultipartHttpServletRequestBuilder multipartRequest = MockMvcRequestBuilders.multipart("/filestorage-api/v1/files");
+
+        mockMvc.perform(multipartRequest)
+        .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Test
     void uploadMultipleFilesTest() throws Exception {
 
         MockMultipartFile sampleFile1 = new MockMultipartFile(
@@ -142,7 +151,16 @@ class FilestorageApplicationTests {
     }
 
     @Test
-    void createNewFileVersionTest() throws Exception {
+    void uploadMultipleFileWihtoutFileAttachmentTest() throws Exception {
+
+        MockMultipartHttpServletRequestBuilder multipartRequest = MockMvcRequestBuilders.multipart("/filestorage-api/v1/multiple-files");
+
+        mockMvc.perform(multipartRequest)
+        .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Test
+    void updateFileWithoutVersionIdTest() throws Exception {
 
         MockMultipartFile sampleFile1 = new MockMultipartFile(
             "file",
@@ -167,7 +185,7 @@ class FilestorageApplicationTests {
     }
 
     @Test
-    void updateExistingFileVersionTest() throws Exception {
+    void updateFileWithVersionIdTest() throws Exception {
 
         MockMultipartFile sampleFile1 = new MockMultipartFile(
             "file",
@@ -189,6 +207,54 @@ class FilestorageApplicationTests {
         mockMvc.perform(multipartRequest.file(sampleFile1).queryParam("versionId", "1"))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
+    void updateFileWithWrongFileNameTest() throws Exception {
+
+        MockMultipartFile sampleFile1 = new MockMultipartFile(
+            "file",
+            fileName1 + "_newName",
+            contentType,
+            fileContent1.getBytes());
+
+        MockMultipartHttpServletRequestBuilder multipartRequest = MockMvcRequestBuilders.multipart(String.format("/filestorage-api/v1/files/%s", fileId1));
+
+        multipartRequest.with(new RequestPostProcessor() {
+
+            @Override
+            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+                request.setMethod(HttpMethod.PUT.name());
+                return request;
+            }
+        });
+
+        mockMvc.perform(multipartRequest.file(sampleFile1).queryParam("versionId", "1"))
+        .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Test
+    void updateFileWithWrongContentTypeTest() throws Exception {
+
+        MockMultipartFile sampleFile1 = new MockMultipartFile(
+            "file",
+            fileName1,
+            contentType + "_newType",
+            fileContent1.getBytes());
+
+        MockMultipartHttpServletRequestBuilder multipartRequest = MockMvcRequestBuilders.multipart(String.format("/filestorage-api/v1/files/%s", fileId1));
+
+        multipartRequest.with(new RequestPostProcessor() {
+
+            @Override
+            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+                request.setMethod(HttpMethod.PUT.name());
+                return request;
+            }
+        });
+
+        mockMvc.perform(multipartRequest.file(sampleFile1).queryParam("versionId", "1"))
+        .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
     @Test
@@ -214,7 +280,7 @@ class FilestorageApplicationTests {
 
         mockMvc.perform(MockMvcRequestBuilders.get(String.format("/filestorage-api/v1/files/%s", fileId1)))
         .andExpect(MockMvcResultMatchers.status().isOk())
-        .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName1 + "\""));
+        .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName1 + "_v1" + "\""));
     }
 
     @Test
@@ -222,7 +288,7 @@ class FilestorageApplicationTests {
 
         mockMvc.perform(MockMvcRequestBuilders.get(String.format("/filestorage-api/v1/files/%s", fileId1)).queryParam("versionId", "1"))
         .andExpect(MockMvcResultMatchers.status().isOk())
-        .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName1 + "\""));
+        .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName1 + "_v1" + "\""));
     }
 
     @Test
